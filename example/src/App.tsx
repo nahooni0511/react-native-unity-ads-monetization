@@ -7,9 +7,8 @@ export default function App() {
   const [loaded, setLoaded] = React.useState(false);
   React.useEffect(() => {
     const gameId = Platform.select({
-      //FIXME
-      android: '3051161',
-      ios: '3051160',
+      android: 'YOUR_GAME_ID',
+      ios: 'YOUR_GAME_ID',
     });
     UnityAds.setOnUnityAdsLoadListener({
       onAdLoaded: (placementId: string) => {
@@ -36,13 +35,8 @@ export default function App() {
       }
     });
 
-    console.log('initialize!')
     UnityAds.initialize(gameId!, true)
-      .then((result) => {
-        console.log(`UnityAds.initialize: ${result}`);
-        if (!result) {
-          throw new Error('Failed to initialize UnityAds.');
-        }
+      .then(_ => {
         return UnityAds.loadAd('rewardedVideo');
       })
   }, []);

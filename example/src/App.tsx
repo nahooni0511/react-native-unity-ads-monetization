@@ -1,18 +1,62 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-unity-ads-monetization';
+import {StyleSheet, View, Text, Platform, Button} from 'react-native';
+import UnityAds from 'react-native-unity-ads-monetization';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
+  const [loaded, setLoaded] = React.useState(false);
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    const gameId = Platform.select({
+      //FIXME
+      android: '3051161',
+      ios: '3051160',
+    });
+    UnityAds.setOnUnityAdsLoadListener({
+      onAdLoaded: (placementId: string) => {
+        console.log(`UnityAds.onAdLoaded: ${placementId}`);
+        setLoaded(true);
+      },
+      onAdLoadFailed: (placementId: string, message: string) => {
+        setLoaded(false);
+        console.error(`UnityAds.onAdLoadFailed: ${placementId}, ${message}`);
+      }
+    });
+    UnityAds.setOnUnityAdsShowListener({
+      onShowStart: (placementId: string) => {
+        console.log(`UnityAds.onShowStart: ${placementId}`)
+      },
+      onShowComplete: (placementId: string, state: 'Skipped' | 'Completed') => {
+        console.log(`UnityAds.onShowComplete: ${placementId}, ${state}`)
+      },
+      onShowFailed: (placementId: string, message: string) => {
+        console.error(`UnityAds.onShowFailed: ${placementId}, ${message}`)
+      },
+      onShowClick: (placementId: string) => {
+        console.log(`UnityAds.onShowClick: ${placementId}`)
+      }
+    });
+
+    console.log('initialize!')
+    UnityAds.initialize(gameId!, true)
+      .then((result) => {
+        console.log(`UnityAds.initialize: ${result}`);
+        if (!result) {
+          throw new Error('Failed to initialize UnityAds.');
+        }
+        return UnityAds.loadAd('rewardedVideo');
+      })
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Ads loaded: {loaded ? 'true' : 'false'}</Text>
+      <Button
+        disabled={!loaded}
+        onPress={() => {
+          UnityAds.showAd('rewardedVideo');
+        }}
+        title={'show ads'}
+      />
     </View>
   );
 }

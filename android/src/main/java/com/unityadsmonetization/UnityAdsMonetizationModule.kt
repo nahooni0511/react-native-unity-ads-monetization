@@ -1,5 +1,6 @@
 package com.yourappmodule
 
+import androidx.fragment.app.FragmentActivity
 import com.facebook.react.bridge.*
 import com.unity3d.ads.UnityAds
 import com.unity3d.ads.UnityAds.UnityAdsInitializationError
@@ -42,7 +43,8 @@ class UnityAdsMonetizationModule(private val reactContext: ReactApplicationConte
 
   @ReactMethod
   fun showAd(placementId: String, promise: Promise) {
-    UnityAds.show(currentActivity, placementId, this)
+    val activity = reactApplicationContext.currentActivity as FragmentActivity?
+    UnityAds.show(activity, placementId, this)
     promise.resolve(null)
   }
 

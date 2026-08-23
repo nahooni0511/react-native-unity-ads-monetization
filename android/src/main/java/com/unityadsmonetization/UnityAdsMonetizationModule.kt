@@ -42,7 +42,11 @@ class UnityAdsMonetizationModule(private val reactContext: ReactApplicationConte
 
   @ReactMethod
   fun showAd(placementId: String, promise: Promise) {
-    UnityAds.show(currentActivity, placementId, this)
+    // React Native 0.80에서 ReactContextBaseJavaModule이 코틀린으로 전환되면서
+    // getCurrentActivity()가 코틀린 함수가 됐다. 코틀린 합성 프로퍼티는 자바
+    // 클래스에만 생기므로 `currentActivity`로는 더 이상 해석되지 않아 컴파일이
+    // 깨진다. ReactApplicationContext를 통해 직접 가져온다.
+    UnityAds.show(reactContext.currentActivity, placementId, this)
     promise.resolve(null)
   }
 
